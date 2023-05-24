@@ -1,0 +1,240 @@
+Spring MVC :
+-----------
+  Model ->View->Controller
+ 
+  A spring MVC is sub framework of Spring Framework which is used to build
+  web application.
+
+  It is build on the top of Servlet API.
+  
+  It follows the Model-View-Controller design patteren.
+
+  It implements all the basic features of a core Spring framework like
+  Inversion of Control,Dependency Injection.
+
+  Why Spring MVC?
+  
+   1.Separate each role model,view,Controller etc.
+   2.Powerful configurarion
+   3. It is sub framework of Spring FrameWork.
+      Use of Spring core features like IOC etc.
+   4. Rapid Application Development.
+   5. Spring MVC is Flexible,easy to test and much features.
+
+ Working of Spring MVC
+ ----------------------
+
+
+    /home     req.
+ client ---------->Tomcat Server{       (DispatcherServlet)                           Delegate Req.
+       <-----------                     1.FrontController-{Accecpt Req.}---------->2.Conroller(Handles Req.)---->Re
+        response                                   |                <------------(Model + View)
+                                                   |                   Delegate rendering of response
+                                                   |
+                                                  3.View Template(View Resolver)
+Note: Error Faced during Creating Maven-web project
+
+Could not calculate build plan: Plugin org.apache.maven.plugins:maven-war-plugin:2.2 or one of its dependencies could not be resolved: Failed to read artifact descriptor for org.apache.maven.plugins:maven-war-plugin:jar:2.2 Plugin org.apache.maven.plugins:maven-war-plugin:2.2 or one of its dependencies could not be resolved: Failed to read artifact descriptor for org.apache.maven.plugins:maven-war-plugin:jar:2.2
+
+Resolved by adding plugins inside <build></build> in pom.xml
+  
+  plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-war-plugin</artifactId>
+            <version>3.3.1</version>
+        </plugin>
+    </plugins>
+  & then run as MVN Install
+  & also try Maven Update
+  & or refresh
+ Note: To resolve index.jsp error
+   add server to your project
+    Build Path->Configure Build Path-->Libraries-->click On 
+    Add Library-->Server Runtime-->select Availabe server-->finish
+
+SPRING MVC Application Creation Steps:
+--------------------------------------
+ 1.Configure the dispatcher servlet in web.xml{Front Controller}
+ 2.Create Spring Configuration File{servletName-servlet.xml}
+  servletName -->name should be same whatever is declared in web.xml.
+ 3.Configure View Resolver
+ 4.Create Controller
+ 5.Create a View to Show(page)
+
+Sending data from controller to view using
+------------------------------------------
+Model                                  ModelAndView
+-----
+addAttribute(String key,Object value)
+   
+ key-->is the value and by help of this 
+       we will get Object data in view 
+       page
+ Object-->Could be anything like student,product,collection,Integer etc.
+   
+
+
+ModelAndView
+----------
+ addObject(String key,Object value)
+
+
+So we will get attributes at view 
+  using request.getAttribute("") that is available im
+  HttpServletRequest class;
+
+  Object ob= request.getAttriute("");
+
+            data
+Controller ----->Model(c) or ModelView(c)--->View
+    
+
+Sending data from View to Controller
+------------------------------------
+(xyz.jsp/html)                Methods
+View---------------------->Controller
+Form                       HttpServletRequest-->{ getParameter("name of field")}
+                            (Traditional Approach)
+                             @RequestParam
+                             @ModelAttribute 
+
+HttpServletRequest
+-----------------
+@RequestMapping(path="/processform",method =RequestMethod.POST)
+public String register(HttpServletRequest request,Model model)
+{
+   String emailId=request.getParameter("email");
+   String userName=request.getParameter("username");
+   String password=request.getParameter("password");
+   System.out.println(emailId);
+   System.out.println(userName);
+   System.out.println(password);
+   model.addAttribute("emailId",emailId);
+   model.addAttribute("userName", userName);
+   model.addAttribute("pass",password);
+            
+   return "registered"; 
+}
+
+@RequestParam
+-----------------  
+@RequestMapping(path="/processform",method =RequestMethod.POST)
+public String register(@RequestParam("email") String EmailId,@RequestParam("username") String 
+			userName,@RequestParam("password") String password,Model model)
+	{
+		System.out.println(EmailId);
+		System.out.println(userName);
+		System.out.println(password); 
+            model.addAttribute("emailId",EmailId);
+		model.addAttribute("userName", userName);
+		model.addAttribute("pass",password);
+            
+            return "registered";  
+     }    
+  @RequestMapping(path="/processform",method =RequestMethod.POST)              
+ public String register(@RequestParam("email") String EmailId,@RequestParam("username") String 
+			userName,@RequestParam("password") String password,Model model)
+	{
+		User user=new User();
+		user.setEmail(EmailId);
+		user.setUsername(userName);
+		user.setPassword(password);
+		
+		model.addAttribute("user", user);
+		
+		return "registered";
+	}
+@ModelAttribute
+----------------
+
+create a model(class) with same no of incoming fields with same name declared in <Input name=" ">
+
+like this
+@RequestMapping(path="/processform",method =RequestMethod.POST)
+public String register(@ModelAttribute User)
+{
+}
+ModelAttribute automatically bind User with incoming fields by matching name;
+
+@RequestMapping(path="/processform",method =RequestMethod.POST)
+public String register(@ModelAttribute User user,Model model)
+	{
+        model.addAttribute("user", user);
+		
+		return "registered";
+      }
+
+//We can remove model.addAttribute("user", user); It Automatcally add user.
+public String register(@ModelAttribute User user,Model model)
+	{
+		System.out.println(user);
+       
+		
+		return "registered";	
+	}
+
+2nd way of using @ModelAttribute
+---------------------------------
+     @ModelAttribute
+	public void commonModelAttribute(Model m)
+	{
+		m.addAttribute("common", "this is common ModelAttributr U can get this attribute in all mapping by its key");
+	}
+
+It add all common data in Model if u define a method using @ModelAttribute 
+before handler methods and these data in Model m object can 
+be accessed by all views that is being handled by handler methods.
+
+-----------------------------------
+Spring ORM in MVC
+
+
+Controller -------->service---->Data Access Layer--->DB
+
+
+
+Redirecting in Spring MVC(n ways)
+---------------------------------
+0)HttpServletResponse
+
+1.redirect prefix
+   @RequestMapping("/one")
+	public String one()
+	{
+		System.out.println("One");
+		return "redirect:/two";
+	}
+	@RequestMapping("/two")
+	public String two()
+	{
+		System.out.println("two");
+		return "";
+	}
+2.RedirectView
+     @RequestMapping("/anotherOne")
+	public RedirectView anotherOne()
+	{
+		System.out.println("Another One");
+		RedirectView redirect=new RedirectView();
+		//redirect.setUrl("two");
+		redirect.setUrl("https://www.google.com");
+		return redirect;
+	}
+	@RequestMapping("/two")
+	public String two()
+	{
+		System.out.println("two");
+		return "contact";
+	}
+
+
+Error Handling in MVC for incoming Data from form
+-------------------------------------------------
+We can take BindingResult object in handler class
+
+to be continued.........................
+
+for JSP page
+-----------
+refer:https://docs.spring.io/spring-framework/docs/4.2.x/spring-framework-reference/html/spring-tld.html
